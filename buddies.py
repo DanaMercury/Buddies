@@ -38,16 +38,7 @@ class Student():
         self.student_info = [self.studentID, self.attendance, self.participation]
 """
 
-Dana = Student("Dana", "Mercury")
-Jer = Student("Jeremiah", "Mercury")
-Bro = Student("Brocat", "Mercury")
-Sis = Student("Nina", "Leon-Guerrero")
-Ern = Student("Ernie", "Leon-Guerrero")
-
-LGclassroom = [Dana.student_info[0], Jer.student_info[0], Bro.student_info[0], Sis.student_info[0], Ern.student_info[0]]
-Testclassroom = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"]
-
-
+"""Determine how many groups there should be """
 def req_atleast2kids(num_in_group):
     if num_in_group <= 1:
         print("There needs to be at least 2 kids a group")
@@ -61,10 +52,9 @@ def req_atleast2groups(num_in_group, num_of_kids):
 def group_upordown(decision_point, org):
     if decision_point <= .5:
         groups = math.floor(org)
-        print(groups)
     else:
         groups = math.ceil(org)
-        print(groups)
+    return(groups)
 
 def num_of_groups(classroom, num_in_group): #Determine num of groups based on num of kids and num of kids wanted in each group
     req_atleast2kids(num_in_group)
@@ -75,17 +65,47 @@ def num_of_groups(classroom, num_in_group): #Determine num of groups based on nu
         print("Make " + str(groups) + " groups, so that " + str(num_in_group) + " kids will be in each group")
         return (groups)
     else:
-        print("Not all groups can have " + str(num_in_group) + " kids in each group")
+        print("Not all groups can have " + str(num_in_group) + " kids")
         org = ((num_of_kids) / (num_in_group))
         decision_point = round(org - int(org), 1)
-        group_upordown(decision_point, org)
+        groups = group_upordown(decision_point, org)
+        print("Divide "+str(num_of_kids)+" kids into "+str(groups)+" groups")
+        return(groups)
 
+"""Determine the size of each group"""
 
+#Create list of group sizes e.g., 11 kids divided into 3 groups -> [4, 4, 3]
+#For all groups
+    #Create a list
+    #Add num_in_group groups-1 times to the list
+    #If even --> add one more group of num_in_group
+    #If uneven --> add one more group with num_in_group+1 to see if it matches num_of_kids
+                # --> if it doesn't match, try num_in_group-1
+                    #  --> if still doesn't match, try num_in_group-1
 
+"""Sort kids into groups"""
 
+#create x num of groups(lists)
+#randomly add kids to groups
 
+"""Testing ground"""
+Dana = Student("Dana", "Mercury")
+Jer = Student("Jeremiah", "Mercury")
+Bro = Student("Brocat", "Mercury")
+Sis = Student("Nina", "Leon-Guerrero")
+Ern = Student("Ernie", "Leon-Guerrero")
+
+LGclassroom = [Dana.student_info[0], Jer.student_info[0], Bro.student_info[0], Sis.student_info[0], Ern.student_info[0]]
+Testclassroom = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"]
 
 num_of_groups(Testclassroom, 4)
+
+
+
+
+
+
+
 
 """
 group1 = random.sample(LGclassroom, 2)
