@@ -14,7 +14,7 @@
      #           -teacher of groups
 
 # import random.choice
-from random import choice
+import random
 import math
 from sys import exit
 
@@ -61,32 +61,37 @@ def num_of_groups(classroom, num_in_group): #Determine num of groups based on nu
     num_of_kids = len(classroom)
     req_atleast2groups(num_in_group, num_of_kids)
     if num_of_kids % num_in_group == 0:
+        is_divisible = True
         groups = int((num_of_kids) / (num_in_group))
         print("Make " + str(groups) + " groups, so that " + str(num_in_group) + " kids will be in each group")
-        return (groups)
     else:
+        is_divisible = False
         print("Not all groups can have " + str(num_in_group) + " kids")
         org = ((num_of_kids) / (num_in_group))
         decision_point = round(org - int(org), 1)
         groups = group_upordown(decision_point, org)
         print("Divide "+str(num_of_kids)+" kids into "+str(groups)+" groups")
-        return(groups)
+    #print(classroom, num_in_group, is_divisible, groups)
+    return(classroom, num_in_group, is_divisible, groups)
 
 """Determine the size of each group"""
-
-#Create list of group sizes e.g., 11 kids divided into 3 groups -> [4, 4, 3]
-#For all groups
-    #Create a list
-    #Add num_in_group groups-1 times to the list
-    #If even --> add one more group of num_in_group
-    #If uneven --> add one more group with num_in_group+1 to see if it matches num_of_kids
-                # --> if it doesn't match, try num_in_group-1
-                    #  --> if still doesn't match, try num_in_group-1
-
-"""Sort kids into groups"""
-
-#create x num of groups(lists)
-#randomly add kids to groups
+def make_groups(classroom, num_in_group, is_divisible, groups):
+    all = []
+    if is_divisible == True:
+        for i in range(groups):
+            picked_kids = random.sample(classroom, num_in_group)
+            all.append(picked_kids)
+            for kid in picked_kids:
+                classroom.remove(kid)
+    else:
+        for i in range(groups-1):
+            picked_kids = random.sample(classroom, num_in_group)
+            all.append(picked_kids)
+            for kid in picked_kids:
+                classroom.remove(kid)
+        all.append(classroom)
+    print(all)
+    return(all)
 
 """Testing ground"""
 Dana = Student("Dana", "Mercury")
@@ -98,31 +103,10 @@ Ern = Student("Ernie", "Leon-Guerrero")
 LGclassroom = [Dana.student_info[0], Jer.student_info[0], Bro.student_info[0], Sis.student_info[0], Ern.student_info[0]]
 Testclassroom = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"]
 
-num_of_groups(Testclassroom, 4)
+x= num_of_groups(Testclassroom, 4)
+make_groups(*x)
 
 
-
-
-
-
-
-
-"""
-group1 = random.sample(LGclassroom, 2)
-print(group1)
-
-for s in group1:
-    LGclassroom.remove(s)
-print(LGclassroom)
-
-group2 = random.sample(LGclassroom, 2)
-print(group2)
-
-for s in group2:
-    LGclassroom.remove(s)
-print(LGclassroom)
-
-"""
 
 
 """
