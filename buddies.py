@@ -5,10 +5,6 @@
      #           *skill level: high, medium, low
      #           *social: leader
      #           -support: if paired with {student name}
-     #      -instance
-     #           -group size: uneven groups are okay
-     #           -groups
-     #           *support: if no leader
      #      -evaluation
      #           -kid of partners
      #           -teacher of groups
@@ -17,6 +13,29 @@
 import random
 import math
 from sys import exit
+import csv
+
+with open('studentnames.csv') as csvfile:
+    readCSV = csv.reader(csvfile, delimiter = ",")
+    list_of_newstudents = []
+
+    firstline = True
+    for row in readCSV:
+        if firstline:
+            firstline = False
+            continue
+        else:
+            newstudent = [row[0], row[1]]
+            list_of_newstudents.append(newstudent)
+
+class Teacher():
+    def __init__(self, teachersname):   #need the teachers name
+        self.classrooms = []
+
+    def add_classroom(self, classroomname):    #Pass Student.studentID, Student.student_info
+        self.classrooms.append(classroomname)
+        #print("You are the teacher for "+ str(self.classrooms[0]))
+        return(self.classrooms)
 
 class Student():
 ### Student Characteristics
@@ -24,7 +43,7 @@ class Student():
         ### need to add studentID as key
         self.first = first
         self.last = last
-        self.studentID = self.first + " " + self.last
+        self.studentID = self.first + "_" + self.last
         self.attendance = True             #default attendance to present
         self.participation = True             #default participation to active
         self.student_info = [self.studentID, self.attendance, self.participation]
@@ -36,6 +55,14 @@ class Student():
     def change_participation(self):
         self.participation = not self.participation
         self.student_info = [self.studentID, self.attendance, self.participation]
+
+d = dict()
+
+for student in list_of_newstudents:
+    objectname = 'Student' + str(student[0])
+    first = student[0]
+    last = student[1]
+    d[objectname] = Student(first, last), first, last
 
 class Classroom():
 
@@ -54,7 +81,19 @@ class Classroom():
         #print(self.roster)
         return(self.roster)
 
-    def list_participants(self):        #returns list of students who are present and participating
+    def update_student_changes(self,studentID, student_info):   #pass Student.studentID, Student.student_info
+        student_tup = (studentID, student_info)
+        for student in self.students:
+            if student[1][0] == studentID:
+                #print("Found the student")
+                i = self.students.index(student)
+                self.students[i] = student_tup
+            else:
+                pass
+                #print(str(student) + " is not who I'm looking for")
+        return(self.students)
+
+    def list_participants(self):        #pass list of all students(roster) --> returns list of students who are present and participating
         self.create_roster()
         self.participant_list = self.roster
         for student in self.students:
@@ -62,6 +101,19 @@ class Classroom():
                 self.participant_list.remove(student[1][0])
         #print("The participants today are "+str(self.participant_list))
         return(self.participant_list)
+
+"""
+    class Team():
+        def add_default_team_info(self):  ###pass through a list of number of teams
+            for i in self.num_of_teams:
+                self.team_name[0] = "Team" + "i"
+                self.teams.append(self.team_info)
+
+        def change_team_name(self, oldteamname, newteamname):    ### pass old team name and new team name
+            for team in self.teams:
+                if oldteamname ==  self.team_name:
+                    self.team_name.append(newteamname)
+"""
 
 ### Determine how many groups there should be
 def req_atleast2kids(num_in_group):
@@ -118,198 +170,21 @@ def make_groups(classroom, num_in_group, is_divisible, groups):
         print(all)
         return(all)
 
-class Teacher():
-    def __init__(self, teachersname):   #need the teachers name
-        self.classrooms = []
-
-    def add_classroom(self, classroomname):    #Pass Student.studentID, Student.student_info
-        self.classrooms.append(classroomname)
-        #print("You are the teacher for "+ str(self.classrooms[0]))
-        return(self.classrooms)
-
 #Testing ground
 
-### Testing ground
 MsMercury = Teacher("Ms.Mercury")
 x= MsMercury.add_classroom("Homeroom")
 Homeroom = Classroom(x[0])
 
-Dana = Student("Dana", "Mercury")
-Jer = Student("Jeremiah", "Mercury")
-Bro = Student("Brocat", "Mercury")
-Sis = Student("Nina", "Leon-Guerrero")
-Ern = Student("Ernie", "Leon-Guerrero")
-Mom = Student("Mom", "Leon-Guerrero")
-Dad = Student("Dad", "Leon-Guerrero")
+d.get("StudentDana")[0].change_attendance()
 
-Dana.change_participation()
-#print(Dana.student_info)
-Ern.change_attendance()
-#print(Jer.student_info)
+for k,v in d.items():
+    Homeroom.add_student(v[0].studentID, v[0].student_info)
 
-Homeroom.add_student(Dana.studentID, Dana.student_info)
-Homeroom.add_student(Jer.studentID, Jer.student_info)
-Homeroom.add_student(Bro.studentID, Bro.student_info)
-Homeroom.add_student(Sis.studentID, Sis.student_info)
-Homeroom.add_student(Ern.studentID, Ern.student_info)
-Homeroom.add_student(Mom.studentID, Mom.student_info)
-Homeroom.add_student(Dad.studentID, Dad.student_info)
+#for student in Homeroom.students:
+#    print(student)
 
 y = Homeroom.list_participants()
 z = (num_of_groups(y, 2))
 make_groups(*z)
 
-
-"""
-class Classroom():
-    def change_attendance(self, studentID):
-        for student in self.students:
-            if student[0] == studentID:
-                student[1][1] = not student[1][1]
-                print("changed attendance")
-
-    def change_participation(self):
-        self.participation = not self.participation
-        self.student_info = [self.studentID, self.attendance, self.participation]
-
-### Change to update all class info, not just student ###
-### Pass through full classlist ###
-    def update_student_info(self, studentID, student_info):
-        for student in self.students:
-            if studentID in self.students:
-                self.students.remove(student)
-                self.participants.remove(student)
-                self.add_student(studentname, studentinfo)
-
-    #def create_attendance_list(self):
-    #    for student in self.students:
-    #        if student[1][1] == False:
-    #            self.participants.remove(student)
-    #    return self.participants
-
-    def print_class_attendance(self):
-        for student in self.students:
-            print(student[1][0], student[1][1])
-
-    def create_participant_list(self):
-        for student in self.participants:
-            if student[1][2] == False:
-                self.participants.remove(student)
-        return self.participants
-
-
-### Change to update all class info, not just student ###
-### Pass through full classlist ###
-    def update_participant_list(self, studentname, studentinfo):      ### need to replace studentname with studentID
-        for student in self.students:
-            if student[0] == studentname:
-                self.participants.remove(student)
-        self.add_student(studentname, studentinfo)
-
-    def print_participants(self):
-        temp = self.create_participant_list()
-        for student in self.participants:
-            print(student[1][0])
-
-
-class Team():
-
-    def __init__(self, numonteam, eventname):
-        self.numonteam = numonteam
-        numonteam = int(numonteam)
-        self.eventname = eventname
-        self.teams = []
-        self.team_info = [self.team_name, self.team_members]
-
-
-    def pick_team_size(self, participant_list):       #feed in Classroom.participants
-        self.num_of_participants = count(self.participant_list)
-        if self.num_of_participants % self.numonteam == 0:
-            self.num_of_teams = self.num_of_participants/self.numonteam
-            print(self.num_of_teams)
-            return self.num_of_teams
-
-
-    def add_default_team_info(self):  ###pass through a list of number of teams
-        for i in self.num_of_teams:
-            self.team_name[0] = "Team" + "i"
-            self.teams.append(self.team_info)
-
-
-    def change_team_name(self, oldteamname, newteamname):    ### pass old team name and new team name
-        for team in self.teams:
-            if oldteamname ==  self.team_name:
-                self.team_name.append(newteamname)
-                ### exit out and stop looking ###
-
-
-
-    def place_participants(self):
-    #counts num of students in the participant_list and sorts them into random groups
-        for team in teams:
-            teamname_members = random.choice(3, self.participant_list) #select three from the participant list
-            self.participant_list.remove()
-
-
-# def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-#    return ''.join(random.choice(chars) for _ in range(size))
-
-
-LG = Classroom("Ms. LG")
-
-LG.add_student(Dana.studentID,Dana.student_info)
-LG.add_student(Jer.studentID,Jer.student_info)
-LG.add_student(Bro.student_info,Bro.student_info)
-
-print(LG.students)
-print("")
-
-LG.change_attendance(studentID=Dana.studentID)
-print(LG.students)
-
-print("")
-LG.change_attendance(studentID=Dana.studentID)
-print(LG.students)
-
-### testing of update_student_info
-
-"""
-"""
-print(Dana.student_info)
-#print(Jer.student_info)
-#LG.print_class_roster()
-LG.print_class_attendance()
-
-print("")
-
-Dana.change_attendance()
-#Jer.change_attendance()
-
-LG.update_student_info(Dana.studentname, Dana.student_info)
-#LG.update_student_info(Jer.studentname, Jer.student_info)
-
-print(Dana.student_info)
-#print(Jer.student_info)
-
-#LG.print_class_roster()
-LG.print_class_attendance()
-"""
-
-###testing of participant list
-
-"""
-LG.create_participant_list()
-
-print(Dana.student_info)
-Dana.change_participation()
-print(Dana.student_info)
-
-
-print("")
-LG.update_participant_list(Dana.studentID, Dana.student_info)
-LG.print_participants()
-
-print("")
-
-print(Dana.student_info)
-"""
