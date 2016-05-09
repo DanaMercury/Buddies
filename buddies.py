@@ -19,7 +19,7 @@ import math
 from sys import exit
 
 class Student():
-
+### Student Characteristics
     def __init__(self, first, last):    # student's first and last name needed
         ### need to add studentID as key
         self.first = first
@@ -28,7 +28,7 @@ class Student():
         self.attendance = True             #default attendance to present
         self.participation = True             #default participation to active
         self.student_info = [self.studentID, self.attendance, self.participation]
-"""
+
     def change_attendance(self):
         self.attendance = not self.attendance
         self.student_info = [self.studentID, self.attendance, self.participation]
@@ -36,9 +36,34 @@ class Student():
     def change_participation(self):
         self.participation = not self.participation
         self.student_info = [self.studentID, self.attendance, self.participation]
-"""
 
-"""Determine how many groups there should be """
+class Classroom():
+
+    def __init__(self, classname):   #need a name for the class e.g., homeroom
+        self.students = []
+        self.roster = []
+        self.participant_list = []
+
+    def add_student(self,studentID, student_info):    #Pass Student.studentID, Student.student_info
+        student_tup = (studentID, student_info)
+        self.students.append(student_tup)
+
+    def create_roster(self):        #returns list of all students in the class
+        for student in self.students:
+            self.roster.append(student[1][0])
+        #print(self.roster)
+        return(self.roster)
+
+    def list_participants(self):        #returns list of students who are present and participating
+        self.create_roster()
+        self.participant_list = self.roster
+        for student in self.students:
+            if student[1][1] == False or student[1][2] == False:
+                self.participant_list.remove(student[1][0])
+        #print("The participants today are "+str(self.participant_list))
+        return(self.participant_list)
+
+### Determine how many groups there should be
 def req_atleast2kids(num_in_group):
     if num_in_group <= 1:
         print("There needs to be at least 2 kids a group")
@@ -50,80 +75,93 @@ def req_atleast2groups(num_in_group, num_of_kids):
         exit()
 
 def group_upordown(decision_point, org):
-    if decision_point <= .5:
-        groups = math.floor(org)
-    else:
-        groups = math.ceil(org)
-    return(groups)
+        if decision_point <= .5:
+            groups = math.floor(org)
+        else:
+            groups = math.ceil(org)
+        return(groups)
 
 def num_of_groups(classroom, num_in_group): #Determine num of groups based on num of kids and num of kids wanted in each group
-    req_atleast2kids(num_in_group)
-    num_of_kids = len(classroom)
-    req_atleast2groups(num_in_group, num_of_kids)
-    if num_of_kids % num_in_group == 0:
-        is_divisible = True
-        groups = int((num_of_kids) / (num_in_group))
-        print("Make " + str(groups) + " groups, so that " + str(num_in_group) + " kids will be in each group")
-    else:
-        is_divisible = False
-        print("Not all groups can have " + str(num_in_group) + " kids")
-        org = ((num_of_kids) / (num_in_group))
-        decision_point = round(org - int(org), 1)
-        groups = group_upordown(decision_point, org)
-        print("Divide "+str(num_of_kids)+" kids into "+str(groups)+" groups")
-    #print(classroom, num_in_group, is_divisible, groups)
-    return(classroom, num_in_group, is_divisible, groups)
+        req_atleast2kids(num_in_group)
+        num_of_kids = len(classroom)
+        req_atleast2groups(num_in_group, num_of_kids)
+        if num_of_kids % num_in_group == 0:
+            is_divisible = True
+            groups = int((num_of_kids) / (num_in_group))
+            #print("Make " + str(groups) + " groups, so that " + str(num_in_group) + " kids will be in each group")
+        else:
+            is_divisible = False
+            #print("Not all groups can have " + str(num_in_group) + " kids")
+            org = ((num_of_kids) / (num_in_group))
+            decision_point = round(org - int(org), 1)
+            groups = group_upordown(decision_point, org)
+            #print("Divide "+str(num_of_kids)+" kids into "+str(groups)+" groups")
+        #print(classroom, num_in_group, is_divisible, groups)
+        return(classroom, num_in_group, is_divisible, groups)
 
-"""Determine the size of each group"""
+### Determine the size of each group
 def make_groups(classroom, num_in_group, is_divisible, groups):
-    all = []
-    if is_divisible == True:
-        for i in range(groups):
-            picked_kids = random.sample(classroom, num_in_group)
-            all.append(picked_kids)
-            for kid in picked_kids:
-                classroom.remove(kid)
-    else:
-        for i in range(groups-1):
-            picked_kids = random.sample(classroom, num_in_group)
-            all.append(picked_kids)
-            for kid in picked_kids:
-                classroom.remove(kid)
-        all.append(classroom)
-    print(all)
-    return(all)
+        all = []
+        if is_divisible == True:
+            for i in range(groups):
+                picked_kids = random.sample(classroom, num_in_group)
+                all.append(picked_kids)
+                for kid in picked_kids:
+                    classroom.remove(kid)
+        else:
+            for i in range(groups-1):
+                picked_kids = random.sample(classroom, num_in_group)
+                all.append(picked_kids)
+                for kid in picked_kids:
+                    classroom.remove(kid)
+            all.append(classroom)
+        print(all)
+        return(all)
 
-"""Testing ground"""
+class Teacher():
+    def __init__(self, teachersname):   #need the teachers name
+        self.classrooms = []
+
+    def add_classroom(self, classroomname):    #Pass Student.studentID, Student.student_info
+        self.classrooms.append(classroomname)
+        #print("You are the teacher for "+ str(self.classrooms[0]))
+        return(self.classrooms)
+
+#Testing ground
+
+### Testing ground
+MsMercury = Teacher("Ms.Mercury")
+x= MsMercury.add_classroom("Homeroom")
+Homeroom = Classroom(x[0])
+
 Dana = Student("Dana", "Mercury")
 Jer = Student("Jeremiah", "Mercury")
 Bro = Student("Brocat", "Mercury")
 Sis = Student("Nina", "Leon-Guerrero")
 Ern = Student("Ernie", "Leon-Guerrero")
+Mom = Student("Mom", "Leon-Guerrero")
+Dad = Student("Dad", "Leon-Guerrero")
 
-LGclassroom = [Dana.student_info[0], Jer.student_info[0], Bro.student_info[0], Sis.student_info[0], Ern.student_info[0]]
-Testclassroom = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven"]
+Dana.change_participation()
+#print(Dana.student_info)
+Ern.change_attendance()
+#print(Jer.student_info)
 
-x= num_of_groups(Testclassroom, 4)
-make_groups(*x)
+Homeroom.add_student(Dana.studentID, Dana.student_info)
+Homeroom.add_student(Jer.studentID, Jer.student_info)
+Homeroom.add_student(Bro.studentID, Bro.student_info)
+Homeroom.add_student(Sis.studentID, Sis.student_info)
+Homeroom.add_student(Ern.studentID, Ern.student_info)
+Homeroom.add_student(Mom.studentID, Mom.student_info)
+Homeroom.add_student(Dad.studentID, Dad.student_info)
 
-
+y = Homeroom.list_participants()
+z = (num_of_groups(y, 2))
+make_groups(*z)
 
 
 """
 class Classroom():
-
-    def __init__(self,teachername):   #need a teacher for the classroom
-        self.teachername = teachername
-        self.students = []
-        self.attendance = []
-        self.participants = []
-
-    def add_student(self,studentID, student_info):    #Pass Student.studentID, Student.student_info
-        student_tup = (studentID, student_info)
-        self.students.append(student_tup)
-        self.attendance.append(student_tup)
-        self.participants.append(student_tup)
-
     def change_attendance(self, studentID):
         for student in self.students:
             if student[0] == studentID:
@@ -142,10 +180,6 @@ class Classroom():
                 self.students.remove(student)
                 self.participants.remove(student)
                 self.add_student(studentname, studentinfo)
-
-    def print_class_roster(self):
-         for student in self.students:
-             print(student[1][0])
 
     #def create_attendance_list(self):
     #    for student in self.students:
