@@ -15,105 +15,32 @@ import math
 from sys import exit
 import csv
 
-with open('studentnames.csv') as csvfile:
-    readCSV = csv.reader(csvfile, delimiter = ",")
-    list_of_newstudents = []
-
-    firstline = True
-    for row in readCSV:
-        if firstline:
-            firstline = False
-            continue
-        else:
-            newstudent = [row[0], row[1]]
-            list_of_newstudents.append(newstudent)
-
 class Teacher():
-    def __init__(self, teachersname):   #need the teachers name
-        self.classrooms = []
 
-    def add_classroom(self, classroomname):    #Pass Student.studentID, Student.student_info
-        self.classrooms.append(classroomname)
-        #print("You are the teacher for "+ str(self.classrooms[0]))
-        return(self.classrooms)
+    def __init__(self, first_name,last_name):   #pass teacher's first and last name
+        self.first_name = first_name
+        self.last_name = last_name
+        self.classrooms = dict()
 
-class Student():
-### Student Characteristics
-    def __init__(self, first, last):    # student's first and last name needed
-        ### need to add studentID as key
-        self.first = first
-        self.last = last
-        self.studentID = self.first + "_" + self.last
-        self.attendance = True             #default attendance to present
-        self.participation = True             #default participation to active
-        self.student_info = [self.studentID, self.attendance, self.participation]
-
-    def change_attendance(self):
-        self.attendance = not self.attendance
-        self.student_info = [self.studentID, self.attendance, self.participation]
-
-    def change_participation(self):
-        self.participation = not self.participation
-        self.student_info = [self.studentID, self.attendance, self.participation]
-
-d = dict()
-
-for student in list_of_newstudents:
-    objectname = 'Student' + str(student[0])
-    first = student[0]
-    last = student[1]
-    d[objectname] = Student(first, last), first, last
+    def add_classroom(self, classroom_data):
+        self.classrooms["ClassroomID_" + classroom_data[0]] = Classroom(classroom_data[1])
 
 class Classroom():
 
     def __init__(self, classname):   #need a name for the class e.g., homeroom
-        self.students = []
-        self.roster = []
-        self.participant_list = []
+        self.class_name = classname
+        self.students = dict()
 
-    def add_student(self,studentID, student_info):    #Pass Student.studentID, Student.student_info
-        student_tup = (studentID, student_info)
-        self.students.append(student_tup)
-
-    def create_roster(self):        #returns list of all students in the class
-        for student in self.students:
-            self.roster.append(student[1][0])
-        #print(self.roster)
-        return(self.roster)
-
-    def update_student_changes(self,studentID, student_info):   #pass Student.studentID, Student.student_info
-        student_tup = (studentID, student_info)
-        for student in self.students:
-            if student[1][0] == studentID:
-                #print("Found the student")
-                i = self.students.index(student)
-                self.students[i] = student_tup
-            else:
-                pass
-                #print(str(student) + " is not who I'm looking for")
-        return(self.students)
+    def add_student(self,student_data):
+        self.students["StudentID_" + student_data[0]] = Student(student_data[1], student_data[2])    #Pass student_firstname, student_lastname
 
     def list_participants(self):        #pass list of all students(roster) --> returns list of students who are present and participating
-        self.create_roster()
-        self.participant_list = self.roster
+        participant_list = []
         for student in self.students:
-            if student[1][1] == False or student[1][2] == False:
-                self.participant_list.remove(student[1][0])
-        #print("The participants today are "+str(self.participant_list))
-        return(self.participant_list)
+            if student.attendance == True and student.participation == True:
+                participant_list.append(student)
+        return(participant_list)
 
-"""
-    class Team():
-        def add_default_team_info(self):  ###pass through a list of number of teams
-            for i in self.num_of_teams:
-                self.team_name[0] = "Team" + "i"
-                self.teams.append(self.team_info)
-
-        def change_team_name(self, oldteamname, newteamname):    ### pass old team name and new team name
-            for team in self.teams:
-                if oldteamname ==  self.team_name:
-                    self.team_name.append(newteamname)
-"""
 
 ### Determine how many groups there should be
 def req_atleast2kids(num_in_group):
@@ -170,21 +97,57 @@ def make_groups(classroom, num_in_group, is_divisible, groups):
         print(all)
         return(all)
 
-#Testing ground
 
-MsMercury = Teacher("Ms.Mercury")
-x= MsMercury.add_classroom("Homeroom")
-Homeroom = Classroom(x[0])
 
-d.get("StudentDana")[0].change_attendance()
+class Student():
+### Student Characteristics
+    def __init__(self, first, last):    # student's first and last name needed
+        self.first = first
+        self.last = last
+        self.studentname = self.first + "_" + self.last
+        self.attendance = True             #default attendance to present
+        self.participation = True             #default participation to active
 
-for k,v in d.items():
-    Homeroom.add_student(v[0].studentID, v[0].student_info)
+    def change_attendance(self):
+        self.attendance = not self.attendance
 
-#for student in Homeroom.students:
-#    print(student)
+    def change_participation(self):
+        self.participation = not self.participation
 
-y = Homeroom.list_participants()
-z = (num_of_groups(y, 2))
-make_groups(*z)
+teachers = dict()
+classroom_teacher = dict()
 
+with open('teachers.csv') as teachersfile, open('classrooms.csv') as classroomsfile, open('students.csv') as studentssfile:
+    teachersCSV = csv.reader(teachersfile, delimiter = ",")
+    next(teachersCSV, None)
+    classroomsCSV = csv.reader(classroomsfile, delimiter=",")
+    next(classroomsCSV, None)
+    studentsCSV = csv.reader(studentssfile, delimiter=",")
+    next(studentsCSV, None)
+
+    for row in teachersCSV:
+        teachers["TeacherID_"+row[0]] = Teacher(row[1], row[2])
+
+    for row in classroomsCSV:
+        teacherID = "TeacherID_" + row[2]
+        if teacherID not in teachers.keys():
+            print("Error - the teacher is not in the teachers.CSV", row)
+            exit()
+        teachers[teacherID].add_classroom(row)
+        classroom_teacher["ClassroomID_"+row[0]] = teacherID
+
+    for row in studentsCSV:
+        classroomID = "ClassroomID_" + row[4]
+        if classroomID not in classroom_teacher.keys():
+            print("Error - the classroom is not in the classrooms.CSV", row)
+            exit()
+        teachers[classroom_teacher[classroomID]].classrooms[classroomID].add_student(row)
+
+"""
+for k,v in teachers.items():
+    print(k,v.first_name,v.last_name)
+    for k,v in v.classrooms.items():
+        print(k,v.class_name)
+        for k,v in v.students.items():
+            print(k,v.first,v.last,v.attendance,v.participation)
+"""
