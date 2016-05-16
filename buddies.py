@@ -42,17 +42,22 @@ class Classroom():
         return participant_list
 
     def group_students(self):
-        student_groups = []
         groups_wanted = input("How many groups do you want?")
         groups_wanted = int(groups_wanted)
+
+        ### Quick checks to see if grouping makes sense
         num_of_kids = len(self.list_participants())
         if num_of_kids <= 1:
-            print("There needs to be at least 2 students in your class")
+            print("There aren't at least 2 students in your class")
             exit()
-        if groups_wanted * 2 - 1 > num_of_kids:
-            print("There aren't enough students to have at least 2 groups")
+        if groups_wanted * 2 > num_of_kids:
+            print("There aren't enough students. Try having fewer groups.")
             exit()
+
+        student_groups = []
         available = self.list_participants()
+
+        ### When students can be evenly divided into groups
         if num_of_kids % groups_wanted == 0:
             num_in_group = int((num_of_kids) / (groups_wanted))
             for i in range(groups_wanted):
@@ -60,19 +65,22 @@ class Classroom():
                 student_groups.append(picked_kids)
                 for kid in picked_kids:
                     available.remove(kid)
+
+        ### When uneven num of students
         else:
             approx_groups = ((num_of_kids) / (groups_wanted))
-            decision_point = round(approx_groups - int(approx_groups), 1)
+            decision_point = round(approx_groups - int(approx_groups), 1) #decision_point to round groups up/down
             if decision_point <= .5:
                 num_in_group = math.floor(approx_groups)
             else:
                 num_in_group = math.ceil(approx_groups)
-            for i in range(groups_wanted-1):
+            for i in range(groups_wanted-1):             # groups_wanted -1, leaves the last group with more/less students
                 picked_kids = random.sample(available, num_in_group)
                 student_groups.append(picked_kids)
                 for kid in picked_kids:
                     available.remove(kid)
             student_groups.append(available)
+
         for group in student_groups:
             print(group)
 
@@ -121,14 +129,12 @@ with open('teachers.csv') as teachersfile, open('classrooms.csv') as classroomsf
         teachers[classroom_teacher[classroomID]].classrooms[classroomID].add_student(row)
 
 
-testlist = teachers["TeacherID_1"].classrooms["ClassroomID_2"].list_participants()
+testlist = teachers["TeacherID_1"].classrooms["ClassroomID_1"].list_participants()
 
-teachers["TeacherID_1"].classrooms["ClassroomID_2"].students["StudentID_20164"].change_attendance()
-teachers["TeacherID_1"].classrooms["ClassroomID_2"].students["StudentID_20163"].change_participation()
+teachers["TeacherID_1"].classrooms["ClassroomID_1"].students["StudentID_20163"].change_participation()
+print(teachers["TeacherID_1"].classrooms["ClassroomID_1"].list_participants())
 
-print(teachers["TeacherID_1"].classrooms["ClassroomID_2"].list_participants())
-
-teachers["TeacherID_1"].classrooms["ClassroomID_2"].group_students()
+teachers["TeacherID_1"].classrooms["ClassroomID_1"].group_students()
 
 
 """
