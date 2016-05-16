@@ -34,70 +34,47 @@ class Classroom():
     def add_student(self,student_data):
         self.students["StudentID_" + student_data[0]] = Student(student_data[1], student_data[2])    #Pass student_firstname, student_lastname
 
-    def list_participants(self):        #pass list of all students(roster) --> returns list of students who are present and participating
+    def list_participants(self):     #uses students attribute to print list of students who are present and participating
         participant_list = []
-        for student in self.students:
-            if student.attendance == True and student.participation == True:
-                participant_list.append(student)
-        return(participant_list)
+        for k,v in self.students.items():
+            if v.attendance == True and v.participation == True:
+                participant_list.append(v.studentname)
+        return participant_list
 
-
-### Determine how many groups there should be
-def req_atleast2kids(num_in_group):
-    if num_in_group <= 1:
-        print("There needs to be at least 2 kids a group")
-        exit()
-
-def req_atleast2groups(num_in_group, num_of_kids):
-    if num_in_group * 2 > num_of_kids:
-        print("There aren't enough kids to have at least 2 groups")
-        exit()
-
-def group_upordown(decision_point, org):
-        if decision_point <= .5:
-            groups = math.floor(org)
-        else:
-            groups = math.ceil(org)
-        return(groups)
-
-def num_of_groups(classroom, num_in_group): #Determine num of groups based on num of kids and num of kids wanted in each group
-        req_atleast2kids(num_in_group)
-        num_of_kids = len(classroom)
-        req_atleast2groups(num_in_group, num_of_kids)
-        if num_of_kids % num_in_group == 0:
-            is_divisible = True
-            groups = int((num_of_kids) / (num_in_group))
-            #print("Make " + str(groups) + " groups, so that " + str(num_in_group) + " kids will be in each group")
-        else:
-            is_divisible = False
-            #print("Not all groups can have " + str(num_in_group) + " kids")
-            org = ((num_of_kids) / (num_in_group))
-            decision_point = round(org - int(org), 1)
-            groups = group_upordown(decision_point, org)
-            #print("Divide "+str(num_of_kids)+" kids into "+str(groups)+" groups")
-        #print(classroom, num_in_group, is_divisible, groups)
-        return(classroom, num_in_group, is_divisible, groups)
-
-### Determine the size of each group
-def make_groups(classroom, num_in_group, is_divisible, groups):
-        all = []
-        if is_divisible == True:
-            for i in range(groups):
-                picked_kids = random.sample(classroom, num_in_group)
-                all.append(picked_kids)
+    def group_students(self):
+        student_groups = []
+        groups_wanted = input("How many groups do you want?")
+        groups_wanted = int(groups_wanted)
+        num_of_kids = len(self.list_participants())
+        if num_of_kids <= 1:
+            print("There needs to be at least 2 students in your class")
+            exit()
+        if groups_wanted * 2 - 1 > num_of_kids:
+            print("There aren't enough students to have at least 2 groups")
+            exit()
+        available = self.list_participants()
+        if num_of_kids % groups_wanted == 0:
+            num_in_group = int((num_of_kids) / (groups_wanted))
+            for i in range(groups_wanted):
+                picked_kids = random.sample(available, num_in_group)
+                student_groups.append(picked_kids)
                 for kid in picked_kids:
-                    classroom.remove(kid)
+                    available.remove(kid)
         else:
-            for i in range(groups-1):
-                picked_kids = random.sample(classroom, num_in_group)
-                all.append(picked_kids)
+            approx_groups = ((num_of_kids) / (groups_wanted))
+            decision_point = round(approx_groups - int(approx_groups), 1)
+            if decision_point <= .5:
+                num_in_group = math.floor(approx_groups)
+            else:
+                num_in_group = math.ceil(approx_groups)
+            for i in range(groups_wanted-1):
+                picked_kids = random.sample(available, num_in_group)
+                student_groups.append(picked_kids)
                 for kid in picked_kids:
-                    classroom.remove(kid)
-            all.append(classroom)
-        print(all)
-        return(all)
-
-
+                    available.remove(kid)
+            student_groups.append(available)
+        for group in student_groups:
+            print(group)
 
 class Student():
 ### Student Characteristics
@@ -143,11 +120,22 @@ with open('teachers.csv') as teachersfile, open('classrooms.csv') as classroomsf
             exit()
         teachers[classroom_teacher[classroomID]].classrooms[classroomID].add_student(row)
 
+
+testlist = teachers["TeacherID_1"].classrooms["ClassroomID_2"].list_participants()
+
+teachers["TeacherID_1"].classrooms["ClassroomID_2"].students["StudentID_20164"].change_attendance()
+teachers["TeacherID_1"].classrooms["ClassroomID_2"].students["StudentID_20163"].change_participation()
+
+print(teachers["TeacherID_1"].classrooms["ClassroomID_2"].list_participants())
+
+teachers["TeacherID_1"].classrooms["ClassroomID_2"].group_students()
+
+
 """
 for k,v in teachers.items():
     print(k,v.first_name,v.last_name)
     for k,v in v.classrooms.items():
-        print(k,v.class_name)
+        print(k,v.class_name, v.list_participants)
         for k,v in v.students.items():
             print(k,v.first,v.last,v.attendance,v.participation)
 """
