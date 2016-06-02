@@ -129,10 +129,8 @@ with open('teachers.csv') as teachersfile, open('classrooms.csv') as classroomsf
         teachers[classroom_teacher[classroomID]].classrooms[classroomID].add_student(row)
 
 
-testlist = teachers["TeacherID_1"].classrooms["ClassroomID_1"].list_participants()
 
 teachers["TeacherID_1"].classrooms["ClassroomID_1"].students["StudentID_20163"].change_participation()
-print(teachers["TeacherID_1"].classrooms["ClassroomID_1"].list_participants())
 
 teachers["TeacherID_1"].classrooms["ClassroomID_1"].group_students()
 
